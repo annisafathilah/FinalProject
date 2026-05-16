@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,7 @@ Route::get('/dashboard', function () {
 
 
 
+
   // Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
@@ -32,6 +34,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 
+
   // Customer
 Route::middleware(['auth', 'role:customer'])->group(function () {
 
@@ -39,11 +42,80 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         return view('customer.dashboard');
     });
 
+      // Add To Cart
+    Route::post('/add-to-cart', function(Request $request){
+
+        $cart = session()->get('cart', []);
+
+        $cart[] = [
+
+            'name'  => $request->input('name'),
+            'price' => $request->input('price'),
+            'image' => $request->input('image')
+
+        ];
+
+        session()->put('cart', $cart);
+
+        return back();
+
+    });
+
+
+      // Cart Page
+    Route::get('/cart', function(){
+
+        $cart = session('cart', []);
+
+        return view('customer.cart', compact('cart'));
+
+    });
+
+
+    Route::get('/orders', function () {
+        return view('customer.orders');
+    });
+
+Route::get('/checkout', function(){
+
+    $cart = session('cart', []);
+
+    return view('customer.checkout',
+    compact('cart'));
+
+});
+Route::post('/place-order', function(){
+
+    $cart = session('cart', []);
+
+    $orders = session('orders', []);
+
+    foreach($cart as $item){
+
+        $orders[] = [
+
+            'name' => $item['name'],
+            'price' => $item['price'],
+            'image' => $item['image'],
+            'status' => 'On Delivery 🚚'
+
+        ];
+
+    }
+
+    session()->put('orders',$orders);
+
+    session()->forget('cart');
+
+    return redirect('/orders');
+
+});
 });
 
 
 
-// Profile
+
+  // Profile
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class,'edit'])
