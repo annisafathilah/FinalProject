@@ -30,6 +30,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         return view('admin.dashboard');
     });
 
+    Route::get('/admin/products', function () {
+        return view('admin.products');
+    });
+
+    Route::get('/admin/orders', function () {
+        return view('admin.orders');
+    });
+
+    Route::get('/admin/customers', function () {
+        return view('admin.customers');
+    });
+
 });
 
 
